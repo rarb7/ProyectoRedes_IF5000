@@ -1,7 +1,13 @@
 package Utility;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Base64;
+
+import javax.imageio.ImageIO;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -25,5 +31,20 @@ public class XMLConvert {
 		return doc.getRootElement();
 
 	} // stringToXML
+	
+	public static String imagetoString(BufferedImage image) throws IOException {
+    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", baos);
+        baos.flush();
+        String encodedImage = Base64.getEncoder().encodeToString(baos.toByteArray());
+        baos.close();
+        return encodedImage;
+    }//imagetoString
+    
+    public static BufferedImage xmltoBufferedImage (String imagenRuta) throws IOException {
+    	byte[] bytes = Base64.getDecoder().decode(imagenRuta);
+    	BufferedImage imagen = ImageIO.read(new ByteArrayInputStream(bytes));
+    	return imagen;
+    }//xmltoBufferedImage
 
 }

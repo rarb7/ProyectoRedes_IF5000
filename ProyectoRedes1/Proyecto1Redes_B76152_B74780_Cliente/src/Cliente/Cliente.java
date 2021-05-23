@@ -1,11 +1,14 @@
 package Cliente;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+
+import javax.imageio.ImageIO;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -22,7 +25,8 @@ public class Cliente extends Thread {
 	private Element entrada;
 	private Element menuprin;
 	private boolean host;
-
+	private BufferedImage image1;
+	
 	private Cliente(int socketPortNumber) throws IOException {
 		this.socketPortNumber = socketPortNumber;
 		this.address = InetAddress.getLocalHost();
@@ -48,6 +52,7 @@ public class Cliente extends Thread {
 				switch (entrada.getChild("Accion").getValue()) {
 				case "agregado":
 					System.out.println("conectado al servidor");
+					sendImage();
 			default:
 				break;
 			}
@@ -61,6 +66,24 @@ public class Cliente extends Thread {
 		} while (true);
 	}// run
 	
+private void sendImage() {
+//		// TODO Auto-generated method stub
+	String imagePath = null;
+	try {
+		this.image1 = ImageIO.read(getClass().getResourceAsStream("/assets/crash.jpg"));
+		 imagePath = XMLConvert.imagetoString(image1);
+		 System.out.println(imagePath);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	Element enviarImagen = new Element("Imagen");
+	enviarImagen.setAttribute("ruta", imagePath);
+    Element envio = acciones(enviarImagen, "image");
+	this.send.println(XMLConvert.xmlToString(envio));
+		
+}
+
 	public Element listen() throws IOException, JDOMException {
 		return XMLConvert.stringToXML(this.receive.readLine());
 	}// listen
