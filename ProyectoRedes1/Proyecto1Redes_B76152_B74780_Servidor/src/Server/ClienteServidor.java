@@ -1,13 +1,22 @@
 package Server;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -49,6 +58,11 @@ public class ClienteServidor extends Thread {
 				case "conectado":
 					System.out.println("se conecto");
 					break;
+				case "image":
+					System.out.println("envio imagen");
+					readImage(escucha.getAttributeValue("ruta"));
+					System.out.println("se guardo imagen");
+					break;
 				default:
 					break;
 				}
@@ -57,6 +71,23 @@ public class ClienteServidor extends Thread {
 			}
 		} while (true);
 
+	}
+
+	private void readImage(String element) {
+	 BufferedImage image1;
+	 try {
+
+//		image1 = XMLConvert.xmltoBufferedImage(element);
+		byte[] imageByteArray = Base64.getDecoder().decode(element);
+		FileOutputStream imageOutFile = new FileOutputStream("src/imagenesEnviadas/saved.jpg");
+        imageOutFile.write(imageByteArray);
+        imageOutFile.close();
+//		File outputfile = new File("/assets/saved.png");
+//		ImageIO.write(image1, "jpg",outputfile );
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	}
 
 	// metodos
@@ -76,4 +107,7 @@ public class ClienteServidor extends Thread {
 		element.addContent(eAccion);
 		return element;
 	}// accion
+	
+	//guardar en ruta especifica
+
 }
