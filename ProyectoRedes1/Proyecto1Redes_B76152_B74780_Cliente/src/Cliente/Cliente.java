@@ -7,12 +7,17 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import Domain.subImages;
+import Utility.ImagesConvert;
 import Utility.XMLConvert;
 
 public class Cliente extends Thread {
@@ -52,7 +57,8 @@ public class Cliente extends Thread {
 				switch (entrada.getChild("Accion").getValue()) {
 				case "agregado":
 					System.out.println("conectado al servidor");
-					sendImage();
+//					sendImage();
+					EnviarImagenPartida("inosuke.jpg");
 			default:
 				break;
 			}
@@ -94,5 +100,18 @@ private void sendImage() {
 		element.addContent(eAccion);
 		return element;
 	}// acciones
+	
+	public void EnviarImagenPartida(String rutaImagen) {
+		Element envioImagen = new Element("EnvioImagen");
+		ArrayList<subImages> subImagenes = ImagesConvert.partirImagenes(rutaImagen);
+		
+		Collections.shuffle(subImagenes);
+		
+		Element imagenesPartidas = XMLConvert.generarSubImagenesXML(subImagenes);
+		envioImagen.addContent(imagenesPartidas);
+		Element envio = acciones(envioImagen, "imagenPartida");
+		
+		this.send.println(XMLConvert.xmlToString(envio));
+	}
 
 }

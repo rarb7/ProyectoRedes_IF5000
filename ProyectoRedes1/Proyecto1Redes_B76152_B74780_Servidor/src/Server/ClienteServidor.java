@@ -11,7 +11,10 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +25,10 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import Domain.AdministracionCliente;
+import Domain.comparadorImagen;
+import Domain.imagenDecodificada;
+import Domain.subImages;
+import Utility.ImagesConvert;
 import Utility.XMLConvert;
 
 public class ClienteServidor extends Thread {
@@ -48,8 +55,8 @@ public class ClienteServidor extends Thread {
 
 	public void run() {
 		Element inicioSesion = new Element("Existe");
-        inicioSesion.setAttribute("boolean", "true");
-        Element verificar = accion(inicioSesion, "agregado");
+		inicioSesion.setAttribute("boolean", "true");
+		Element verificar = accion(inicioSesion, "agregado");
 		this.send.println(XMLConvert.xmlToString(verificar));
 		do {
 			try {
@@ -63,6 +70,30 @@ public class ClienteServidor extends Thread {
 					readImage(escucha.getAttributeValue("ruta"));
 					System.out.println("se guardo imagen");
 					break;
+				case "imagenPartida":
+					System.out.println("Entro la imagen Partida");
+					try {
+						ArrayList<subImages> subImages = XMLConvert
+								.ImagenPartidaxmltoArray(escucha.getChild("subImagenes"));
+						ArrayList<imagenDecodificada> imagenesDeco = imgDecodificadas(subImages);
+						unirImagenes(imagenesDeco,"DesordenInosuke");
+						System.out.println("imagenes en desorden");
+						for (int i = 0; i < imagenesDeco.size(); i++) {
+							System.out.println(imagenesDeco.get(i).getImagenId());
+						}
+						ArrayList<imagenDecodificada> imgsOrdenadas=ordenarxNumero(imagenesDeco);
+						System.out.println("imagenes en orden");
+						for (int i = 0; i < imgsOrdenadas.size(); i++) {
+							System.out.println(imgsOrdenadas.get(i).getImagenId());
+						}
+						
+						unirImagenes(imgsOrdenadas,"EnsambladoimgInosuke");
+						
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+//				
 				default:
 					break;
 				}
@@ -74,20 +105,20 @@ public class ClienteServidor extends Thread {
 	}
 
 	private void readImage(String element) {
-	 BufferedImage image1;
-	 try {
+		BufferedImage image1;
+		try {
 
 //		image1 = XMLConvert.xmltoBufferedImage(element);
-		byte[] imageByteArray = Base64.getDecoder().decode(element);
-		FileOutputStream imageOutFile = new FileOutputStream("src/imagenesEnviadas/saved.jpg");
-        imageOutFile.write(imageByteArray);
-        imageOutFile.close();
+			byte[] imageByteArray = Base64.getDecoder().decode(element);
+			FileOutputStream imageOutFile = new FileOutputStream("src/imagenesEnviadas/saved.jpg");
+			imageOutFile.write(imageByteArray);
+			imageOutFile.close();
 //		File outputfile = new File("/assets/saved.png");
 //		ImageIO.write(image1, "jpg",outputfile );
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	// metodos
@@ -107,7 +138,65 @@ public class ClienteServidor extends Thread {
 		element.addContent(eAccion);
 		return element;
 	}// accion
-	
-	//guardar en ruta especifica
 
+	public ArrayList<imagenDecodificada> imgDecodificadas(ArrayList<subImages> imgPartes) {
+		ArrayList<imagenDecodificada> imgDecod = new ArrayList<imagenDecodificada>();
+		BufferedImage img = null;
+		for (int i = 0; i < imgPartes.size(); i++) {
+			img = ImagesConvert.readImage(imgPartes.get(i).getImagen(), i);
+			imgDecod.add(new imagenDecodificada(img, imgPartes.get(i).getImagenId()));
+		} // recorre todo el array para decodificar la imagen
+		return imgDecod;
+	}// imgDecodificadas
+
+	private void unirImagenes(ArrayList<imagenDecodificada> imagenesDeco, String ruta) {
+		ArrayList<BufferedImage> imagenes = new ArrayList<BufferedImage>();
+		int iter=0;
+		int goal=4;
+		for (int i = 0; i < imagenesDeco.size(); i++) {
+			while(iter+3<16) {
+				BufferedImage img1 = ImagesConvert.joinImages(imagenesDeco.get(iter).getImagen(), imagenesDeco.get(iter+1).getImagen());
+				BufferedImage img2 = ImagesConvert.joinImages(imagenesDeco.get(iter+2).getImagen(), imagenesDeco.get(iter+3).getImagen());
+				BufferedImage img = ImagesConvert.joinImages(img1, img2);
+				imagenes.add(img);
+				try {
+					ImageIO.write(img, "jpg", new File("src/imagenesRecibidas/joinImageDos"+goal+".jpg"));
+					goal+=1;
+					//img = ImageIO.read(new File("src/imagenesRecibidas/savedRect"+1+".jpg"));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				iter+=4;
+			}
+			
+			
+		}
+		ImagesConvert.mergeFiles(imagenes,ruta);
+
+	}// unirImagenes
+
+	
+	public  ArrayList<imagenDecodificada> ordenarxNumero(ArrayList<imagenDecodificada> imgDeco){
+		for (int i = 0; i < imgDeco.size(); i++) {
+			for (int j = 0; j < imgDeco.size(); j++) {
+				if (imgDeco.get(i).getImagenId() < imgDeco.get(j).getImagenId()) {
+					
+					BufferedImage temp1 = imgDeco.get(i).getImagen();
+					int temp = imgDeco.get(i).getImagenId();
+					
+					imgDeco.get(i).setImagenId(imgDeco.get(j).getImagenId());
+					imgDeco.get(i).setImagen(imgDeco.get(j).getImagen());
+					
+					imgDeco.get(j).setImagenId(temp);
+					imgDeco.get(j).setImagen(temp1);
+				}
+			}
+		}
+		
+
+		return imgDeco;
+		
+	}
 }
+
