@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
@@ -15,6 +16,8 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+
+import Domain.subImages;
 
 public class XMLConvert {
 	public static String xmlToString(Element element) {
@@ -46,5 +49,26 @@ public class XMLConvert {
     	BufferedImage imagen = ImageIO.read(new ByteArrayInputStream(bytes));
     	return imagen;
     }//xmltoBufferedImage
+    
+    public static Element generarSubImagenesXML(ArrayList<subImages> subImagenes) {
+        Element eCasillas = new Element("subImagenes");
+        for (int i = 0; i < subImagenes.size(); i++) {
+            eCasillas.addContent(generarSubimagenXML(subImagenes.get(i)));
+        }
+        return eCasillas;
+    }//generaSubImagenes
+    
+    public static Element generarSubimagenXML(subImages subImagen) {
+        Element eSubImagen = new Element("subImagen");
+        eSubImagen.setAttribute("rutaCod", subImagen.getImagen());
+
+        Element enumOrden = new Element("numOrden");
+        enumOrden.addContent(String.valueOf(subImagen.getImagenId()));
+
+
+        eSubImagen.addContent(enumOrden);
+
+        return eSubImagen;
+    } // generarSubImagen 
 
 }

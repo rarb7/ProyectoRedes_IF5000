@@ -5,7 +5,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -15,6 +17,9 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+
+
+import Domain.subImages;
 
 public class XMLConvert {
     public static String xmlToString(Element element) {
@@ -52,4 +57,20 @@ public class XMLConvert {
     	BufferedImage imagen = ImageIO.read(new ByteArrayInputStream(bytes));
     	return imagen;
     }//xmltoBufferedImage
+    
+    public static ArrayList<subImages> ImagenPartidaxmltoArray(Element element) throws JDOMException, IOException {
+		ArrayList<subImages> fichas = new ArrayList<subImages>();
+		List elementList = element.getContent();
+		for (Object object : elementList) {
+			Element elementoActual = (Element) object;
+//			Element ImagenPartidaxml = stringToXML(elementoActual.getChild("subImagen").getValue());
+			subImages subImage = new subImages(elementoActual.getAttributeValue("rutaCod"),
+					Integer.parseInt(elementoActual.getChild("numOrden").getValue()));
+					
+
+			fichas.add(subImage);
+		}
+		return fichas;
+	}
+    
 }
