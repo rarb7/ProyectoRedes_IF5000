@@ -22,7 +22,7 @@ public class Main {
 	
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		//hola
 		Cliente cliente;
 		try {
 			cliente = Cliente.getClient();
@@ -30,14 +30,9 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		ArrayList<BufferedImage> imagenPartes = partirImagenes();
-//		int iter;
-//		iter = 0;
 
-//		unirPartes(imagenPartes);
-//		ArrayList<BufferedImage> emsamblaje = ensamblaje();
-//		mergeFiles(emsamblaje);
+		
+	}
 
-//		System.out.println("Cortes hechos");
 	}// main
-}
+
