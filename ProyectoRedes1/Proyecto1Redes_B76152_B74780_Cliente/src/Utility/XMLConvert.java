@@ -70,5 +70,17 @@ public class XMLConvert {
 
         return eSubImagen;
     } // generarSubImagen 
+    
+    public static Element generarLogIn(String nombre, String password) {
+		Element eInicio = new Element("Usuario");
+		eInicio.setAttribute("nombre", nombre);
+
+		Element ePassword = new Element("password");
+		ePassword.addContent(password);
+
+		eInicio.addContent(ePassword);
+
+		return eInicio;
+	}
 
 }

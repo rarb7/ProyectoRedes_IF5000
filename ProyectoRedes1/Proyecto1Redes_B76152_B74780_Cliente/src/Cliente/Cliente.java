@@ -31,7 +31,7 @@ public class Cliente extends Thread {
 	private Element menuprin;
 	private boolean host;
 	private BufferedImage image1;
-	
+
 	private Cliente(int socketPortNumber) throws IOException {
 		this.socketPortNumber = socketPortNumber;
 		this.address = InetAddress.getLocalHost();
@@ -58,10 +58,14 @@ public class Cliente extends Thread {
 				case "agregado":
 					System.out.println("conectado al servidor");
 //					sendImage();
-					EnviarImagenPartida("inosuke.jpg");
-			default:
-				break;
-			}
+					//EnviarImagenPartida("inosuke.jpg");
+				case "verificado":
+					String verificacion=entrada.getAttributeValue("boolean1");
+					
+					System.out.println("Usuario verificado desde cliente "+verificacion);
+				default:
+					break;
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -71,47 +75,62 @@ public class Cliente extends Thread {
 			}
 		} while (true);
 	}// run
-	
-private void sendImage() {
+
+	private void sendImage() {
 //		// TODO Auto-generated method stub
-	String imagePath = null;
-	try {
-		this.image1 = ImageIO.read(getClass().getResourceAsStream("/assets/crash.jpg"));
-		 imagePath = XMLConvert.imagetoString(image1);
-		 System.out.println(imagePath);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		String imagePath = null;
+		try {
+			this.image1 = ImageIO.read(getClass().getResourceAsStream("/assets/crash.jpg"));
+			imagePath = XMLConvert.imagetoString(image1);
+			System.out.println(imagePath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Element enviarImagen = new Element("Imagen");
+		enviarImagen.setAttribute("ruta", imagePath);
+		Element envio = acciones(enviarImagen, "image");
+		this.send.println(XMLConvert.xmlToString(envio));
+
 	}
-	Element enviarImagen = new Element("Imagen");
-	enviarImagen.setAttribute("ruta", imagePath);
-    Element envio = acciones(enviarImagen, "image");
-	this.send.println(XMLConvert.xmlToString(envio));
-		
-}
 
 	public Element listen() throws IOException, JDOMException {
 		return XMLConvert.stringToXML(this.receive.readLine());
 	}// listen
-	
+
 	public Element acciones(Element element, String accion) {
 		Element eAccion = new Element("Accion");
 		eAccion.addContent(accion);
 		element.addContent(eAccion);
 		return element;
 	}// acciones
-	
+
 	public void EnviarImagenPartida(String rutaImagen) {
 		Element envioImagen = new Element("EnvioImagen");
 		ArrayList<subImages> subImagenes = ImagesConvert.partirImagenes(rutaImagen);
-		
+
 		Collections.shuffle(subImagenes);
-		
+
 		Element imagenesPartidas = XMLConvert.generarSubImagenesXML(subImagenes);
 		envioImagen.addContent(imagenesPartidas);
 		Element envio = acciones(envioImagen, "imagenPartida");
-		
+
 		this.send.println(XMLConvert.xmlToString(envio));
+	}
+
+	public boolean registarCliente(String nombre, String password) throws IOException {
+
+		Element element = XMLConvert.generarLogIn(nombre, password);
+		Element verificar = acciones(element, "registar");
+		this.send.println(XMLConvert.xmlToString(verificar));
+		return true;
+
+	}
+	public boolean logIn(String nombre, String password) throws IOException {
+		Element element = XMLConvert.generarLogIn(nombre, password);
+		Element verificar = acciones(element, "login");
+		this.send.println(XMLConvert.xmlToString(verificar));
+		return true;
 	}
 
 }

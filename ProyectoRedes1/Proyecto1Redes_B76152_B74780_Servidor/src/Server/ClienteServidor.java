@@ -24,7 +24,9 @@ import javax.swing.JOptionPane;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import Data.DataUsuario;
 import Domain.AdministracionCliente;
+import Domain.Usuario;
 import Domain.comparadorImagen;
 import Domain.imagenDecodificada;
 import Domain.subImages;
@@ -40,11 +42,13 @@ public class ClienteServidor extends Thread {
 	private boolean activo;
 	private Element escucha;
 	private Element element;
+	DataUsuario usuarioBD;
 
 	public ClienteServidor(Socket socket) {
 		this.socketR = socket;
 		this.activo = false;
 		this.adminClientes = AdministracionCliente.getInstance();
+		usuarioBD=new DataUsuario();
 		try {
 			this.send = new PrintStream(this.socketR.getOutputStream());
 			this.receive = new BufferedReader(new InputStreamReader(this.socketR.getInputStream()));
@@ -93,12 +97,38 @@ public class ClienteServidor extends Thread {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-//				
+				case "registar":
+					
+					
+					String nombre=escucha.getAttributeValue("nombre");
+					String pass=escucha.getChild("password").getValue();
+					System.out.println(nombre+" "+pass);
+					
+					usuarioBD.insertarUsuario(new Usuario(nombre,pass));
+					
+				case "login":
+					String nombreUser=escucha.getAttributeValue("nombre");
+					String passUser=escucha.getChild("password").getValue();
+					Boolean band=usuarioBD.verificarUsuario(nombreUser, passUser);
+					
+					Element verificado = new Element("ExisteUser");
+					if (band) {
+						verificado.setAttribute("boolean1", "true");
+					}else {
+						verificado.setAttribute("boolean1", "false");
+					}
+					
+					Element verificarUser = accion(verificado, "verificado");
+					this.send.println(XMLConvert.xmlToString(verificarUser));
+					
 				default:
 					break;
 				}
 			} catch (JDOMException ex) {
 				Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		} while (true);
 

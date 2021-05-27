@@ -16,22 +16,24 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import Cliente.Cliente;
+import GUI.VentanaInicio;
 
 public class Main {
 
 	
 
 	public static void main(String[] args) {
-		//hola
-		Cliente cliente;
+		
+		VentanaInicio ventana=new VentanaInicio();
+		
 		try {
+			Cliente cliente;
 			cliente = Cliente.getClient();
+			cliente.logIn("1","1");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Prueba");
-		
 	}
 
 	}// main
