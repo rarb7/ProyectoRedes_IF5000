@@ -82,5 +82,17 @@ public class XMLConvert {
 
 		return eInicio;
 	}
+    
+    public static Element generarLogIn1(String nombre, String password) {
+		Element eInicio = new Element("Usuario1");
+		eInicio.setAttribute("nombre1", nombre);
+
+		Element ePassword = new Element("password1");
+		ePassword.addContent(password);
+
+		eInicio.addContent(ePassword);
+
+		return eInicio;
+	}
 
 }

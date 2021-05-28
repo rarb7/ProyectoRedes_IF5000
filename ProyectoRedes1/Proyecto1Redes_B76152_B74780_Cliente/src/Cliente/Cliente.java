@@ -152,7 +152,7 @@ public class Cliente extends Thread {
 
 	}
 	public boolean logIn(String nombre, String password) throws IOException {
-		Element element = XMLConvert.generarLogIn(nombre, password);
+		Element element = XMLConvert.generarLogIn1(nombre, password);
 		Element verificar = acciones(element, "login");
 		this.send.println(XMLConvert.xmlToString(verificar));
 		this.nombre=nombre;
