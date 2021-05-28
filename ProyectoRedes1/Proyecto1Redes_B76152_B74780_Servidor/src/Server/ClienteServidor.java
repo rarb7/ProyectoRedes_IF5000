@@ -3,29 +3,24 @@ package Server;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import Data.DataUsuario;
 import Domain.AdministracionCliente;
-import Domain.comparadorImagen;
+import Domain.Usuario;
 import Domain.imagenDecodificada;
 import Domain.subImages;
 import Utility.ImagesConvert;
@@ -40,6 +35,7 @@ public class ClienteServidor extends Thread {
 	private boolean activo;
 	private Element escucha;
 	private Element element;
+	DataUsuario usuarioBD;
 
 	public ClienteServidor(Socket socket) {
 		this.socketR = socket;
@@ -93,12 +89,38 @@ public class ClienteServidor extends Thread {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				case "registar":
+					
+					
+					String nombre=escucha.getAttributeValue("nombre");
+					String pass=escucha.getChild("password").getValue();
+					System.out.println(nombre+" "+pass);
+					
+					usuarioBD.insertarUsuario(new Usuario(nombre,pass));
+					
+				case "login":
+					String nombreUser=escucha.getAttributeValue("nombre");
+					String passUser=escucha.getChild("password").getValue();
+					Boolean band=usuarioBD.verificarUsuario(nombreUser, passUser);
+					
+					Element verificado = new Element("ExisteUser");
+					if (band) {
+						verificado.setAttribute("boolean1", "true");
+					}else {
+						verificado.setAttribute("boolean1", "false");
+					}
+					
+					Element verificarUser = accion(verificado, "verificado");
+					this.send.println(XMLConvert.xmlToString(verificarUser));
 //				
 				default:
 					break;
 				}
 			} catch (JDOMException ex) {
 				Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
+			}catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		} while (true);
 
