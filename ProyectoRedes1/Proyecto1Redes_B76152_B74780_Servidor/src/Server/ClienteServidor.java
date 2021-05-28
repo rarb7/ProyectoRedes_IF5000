@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -41,6 +42,7 @@ public class ClienteServidor extends Thread {
 		this.socketR = socket;
 		this.activo = false;
 		this.adminClientes = AdministracionCliente.getInstance();
+		usuarioBD=new DataUsuario();
 		try {
 			this.send = new PrintStream(this.socketR.getOutputStream());
 			this.receive = new BufferedReader(new InputStreamReader(this.socketR.getInputStream()));
@@ -50,10 +52,7 @@ public class ClienteServidor extends Thread {
 	}// cliente_Servidor?constructor
 
 	public void run() {
-		Element inicioSesion = new Element("Existe");
-		inicioSesion.setAttribute("boolean", "true");
-		Element verificar = accion(inicioSesion, "agregado");
-		this.send.println(XMLConvert.xmlToString(verificar));
+		
 		do {
 			try {
 				escucha = listen();
@@ -98,14 +97,16 @@ public class ClienteServidor extends Thread {
 					
 					usuarioBD.insertarUsuario(new Usuario(nombre,pass));
 					
+					
 				case "login":
 					String nombreUser=escucha.getAttributeValue("nombre");
 					String passUser=escucha.getChild("password").getValue();
 					Boolean band=usuarioBD.verificarUsuario(nombreUser, passUser);
-					
+
 					Element verificado = new Element("ExisteUser");
 					if (band) {
 						verificado.setAttribute("boolean1", "true");
+						
 					}else {
 						verificado.setAttribute("boolean1", "false");
 					}

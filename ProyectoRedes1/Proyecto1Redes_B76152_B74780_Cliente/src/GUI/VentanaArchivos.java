@@ -5,8 +5,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
@@ -15,6 +13,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Cliente.Cliente;
+import Domain.Usuario;
 
 
 public class VentanaArchivos extends JInternalFrame implements ActionListener  {
@@ -30,11 +31,13 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener  {
 	//JFileChooser
 	private JFileChooser jfcSelector;
 	private String ruta;
-	
+	private Cliente cliente;
+	private Usuario usuario;
 	
 	// constructor
 		public VentanaArchivos() {
 			super("Envio de Archivos");
+			usuario=new Usuario();
 			this.setSize(600, 500);
 			this.setResizable(false);
 			this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -43,6 +46,12 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener  {
 			this.init();
 
 			this.setVisible(true);
+			try {
+				cliente=Cliente.getClient();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		// init
@@ -113,6 +122,21 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener  {
 			
 			System.out.println(this.ruta);
 		} // select_file
+		if(arg0.getSource()==this.entrar) {
+			
+			try {
+				char[] password = this.jtfPassword.getPassword();
+                String pass = new String(password);
+				cliente.logIn(this.jtfNombre.getText(),pass);
+				
+				
+				
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 }//VentanaArchivos
