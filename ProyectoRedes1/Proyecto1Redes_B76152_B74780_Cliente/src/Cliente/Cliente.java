@@ -59,6 +59,11 @@ public class Cliente extends Thread {
 					System.out.println("conectado al servidor");
 //					sendImage();
 					EnviarImagenPartida("inosuke.jpg");
+					
+				case "verificado":
+					String verificacion=entrada.getAttributeValue("boolean1");
+					
+					System.out.println("Usuario verificado desde cliente "+verificacion);
 			default:
 				break;
 			}
@@ -72,7 +77,7 @@ public class Cliente extends Thread {
 		} while (true);
 	}// run
 	
-private void sendImage() {
+	private void sendImage() {
 //		// TODO Auto-generated method stub
 	String imagePath = null;
 	try {
@@ -113,5 +118,18 @@ private void sendImage() {
 		
 		this.send.println(XMLConvert.xmlToString(envio));
 	}
+	public boolean registarCliente(String nombre, String password) throws IOException {
 
+		Element element = XMLConvert.generarLogIn(nombre, password);
+		Element verificar = acciones(element, "registar");
+		this.send.println(XMLConvert.xmlToString(verificar));
+		return true;
+
+	}
+	public boolean logIn(String nombre, String password) throws IOException {
+		Element element = XMLConvert.generarLogIn(nombre, password);
+		Element verificar = acciones(element, "login");
+		this.send.println(XMLConvert.xmlToString(verificar));
+		return true;
+	}
 }

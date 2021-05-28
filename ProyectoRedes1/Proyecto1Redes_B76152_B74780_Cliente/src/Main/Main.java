@@ -22,15 +22,17 @@ public class Main {
 	
 
 	public static void main(String[] args) {
-		//hola
-		Cliente cliente;
+		
+		
 		try {
+			Cliente cliente;
 			cliente = Cliente.getClient();
+			cliente.logIn("1","1");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Prueba");
+		
 		
 	}
 
