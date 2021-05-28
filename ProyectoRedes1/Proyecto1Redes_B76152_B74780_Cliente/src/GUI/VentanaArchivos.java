@@ -17,126 +17,137 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import Cliente.Cliente;
 import Domain.Usuario;
 
-
-public class VentanaArchivos extends JInternalFrame implements ActionListener  {
+public class VentanaArchivos extends JInternalFrame implements ActionListener {
 	private JLabel jlblNombre;
 	private JTextField jtfNombre;
 	private JLabel jlblPassword;
 	private JPasswordField jtfPassword;
 	private JTextField jtfRuta;
-	//boton
+	// boton
 	private JButton entrar;
 	private JButton enviar;
 	private JButton FileChooser;
-	//JFileChooser
+	// JFileChooser
 	private JFileChooser jfcSelector;
 	private String ruta;
 	private Cliente cliente;
 	private Usuario usuario;
-	
+
 	// constructor
-		public VentanaArchivos() {
-			super("Envio de Archivos");
-			usuario=new Usuario();
-			this.setSize(600, 500);
-			this.setResizable(false);
-			this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-			this.setLayout(null);
+	public VentanaArchivos() {
+		super("Envio de Archivos");
+		usuario = new Usuario();
+		this.setSize(600, 500);
+		this.setResizable(false);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setLayout(null);
 
-			this.init();
+		this.init();
 
-			this.setVisible(true);
-			try {
-				cliente=Cliente.getClient();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// init
-		public void init() {
-			this.jlblNombre = new JLabel("Nombre");
-			this.jlblNombre.setBounds(20, 20, 60, 20);
-			this.add(this.jlblNombre);
-			this.jtfNombre = new JTextField(60);
-			this.jtfNombre.setBounds(100, 20, 80, 20);
-			this.add(this.jtfNombre);
-			
-			this.jlblPassword = new JLabel("Password");
-			this.jlblPassword.setBounds(200, 20, 80, 20);
-			this.add(this.jlblPassword);
-			this.jtfPassword = new JPasswordField(60);
-			this.jtfPassword.setBounds(300, 20, 80, 20);
-			this.add(this.jtfPassword);
-			
-			this.entrar = new JButton("Log In");
-			this.entrar.setBounds(400, 20, 100, 30);
-			this.entrar.addActionListener(this);
-			this.add(this.entrar);
-			
-			// botones del fileChooser y la imagen seleccionada
-			this.FileChooser = new JButton("SelectFile");
-			this.FileChooser.setBounds(20, 60, 100, 30);
-			this.FileChooser.addActionListener(this);
-			this.add(FileChooser);
-			
-			this.jtfRuta = new JTextField(60);
-			this.jtfRuta.setBounds(200, 60, 100, 30);
-			this.jtfRuta.setEnabled(false);
-			this.add(this.jtfRuta);
-			
-			this.enviar = new JButton("Enviar");
-			this.enviar.setBounds(300, 60, 100, 30);
-			this.enviar.addActionListener(this);
-			this.add(this.enviar);
-			
-		}
-		
-		public String initJFileChooser() { // se iniciliza JFileChooser.
-			this.jfcSelector = new JFileChooser();
-			FileNameExtensionFilter filtro = new FileNameExtensionFilter("JPG", "jpg");
-			this.jfcSelector.setFileFilter(filtro);
-			this.jfcSelector.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-			int resultado = this.jfcSelector.showOpenDialog(this);
-			if (resultado == JFileChooser.CANCEL_OPTION) {
-				this.jfcSelector.cancelSelection();
-			}
-			File archivo = this.jfcSelector.getSelectedFile();
-			if (archivo == null || archivo.getName().equals("")) {
-				this.jfcSelector.cancelSelection();
-				JOptionPane.showMessageDialog(null, "Error. Archivo inválido.");
-			} else {
-				this.ruta=archivo.getName();
-			}
-			
-			return archivo.getName();
-		}
-		
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		
-		if (arg0.getSource() == this.FileChooser) {
-			this.ruta = initJFileChooser();
-			this.jtfRuta.setText(this.ruta);
-			
-			System.out.println(this.ruta);
-		} // select_file
-		if(arg0.getSource()==this.entrar) {
-			
-			try {
-				char[] password = this.jtfPassword.getPassword();
-                String pass = new String(password);
-				cliente.logIn(this.jtfNombre.getText(),pass);
-				
-				
-				
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		this.setVisible(true);
+		try {
+			cliente = Cliente.getClient();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
-}//VentanaArchivos
+
+	// init
+	public void init() {
+		this.jlblNombre = new JLabel("Nombre");
+		this.jlblNombre.setBounds(20, 20, 60, 20);
+		this.add(this.jlblNombre);
+		this.jtfNombre = new JTextField(60);
+		this.jtfNombre.setBounds(100, 20, 80, 20);
+		this.add(this.jtfNombre);
+
+		this.jlblPassword = new JLabel("Password");
+		this.jlblPassword.setBounds(200, 20, 80, 20);
+		this.add(this.jlblPassword);
+		this.jtfPassword = new JPasswordField(60);
+		this.jtfPassword.setBounds(300, 20, 80, 20);
+		this.add(this.jtfPassword);
+
+		this.entrar = new JButton("Log In");
+		this.entrar.setBounds(400, 20, 100, 30);
+		this.entrar.addActionListener(this);
+		this.add(this.entrar);
+
+		// botones del fileChooser y la imagen seleccionada
+		this.FileChooser = new JButton("SelectFile");
+		this.FileChooser.setBounds(20, 60, 100, 30);
+		this.FileChooser.addActionListener(this);
+		this.add(FileChooser);
+
+		this.jtfRuta = new JTextField(60);
+		this.jtfRuta.setBounds(200, 60, 100, 30);
+		this.jtfRuta.setEnabled(false);
+		this.add(this.jtfRuta);
+
+		this.enviar = new JButton("Enviar");
+		this.enviar.setBounds(300, 60, 100, 30);
+		this.enviar.addActionListener(this);
+		this.add(this.enviar);
+
+	}
+
+	public String initJFileChooser() { // se iniciliza JFileChooser.
+		this.jfcSelector = new JFileChooser();
+		FileNameExtensionFilter filtro = new FileNameExtensionFilter("JPG", "jpg");
+		this.jfcSelector.setFileFilter(filtro);
+		this.jfcSelector.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		int resultado = this.jfcSelector.showOpenDialog(this);
+		if (resultado == JFileChooser.CANCEL_OPTION) {
+			this.jfcSelector.cancelSelection();
+		}
+		File archivo = this.jfcSelector.getSelectedFile();
+		if (archivo == null || archivo.getName().equals("")) {
+			this.jfcSelector.cancelSelection();
+			JOptionPane.showMessageDialog(null, "Error. Archivo inválido.");
+		} else {
+			this.ruta = archivo.getName();
+		}
+
+		return archivo.getName();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+
+		if (arg0.getSource() == this.FileChooser) {
+			if(this.cliente.getVerificado()) {
+				this.ruta = initJFileChooser();
+				this.jtfRuta.setText(this.ruta);
+
+				System.out.println(this.ruta);
+			}else {
+				JOptionPane.showMessageDialog(rootPane, "Por Favor Inicie Sesion");
+			}
+			
+		} // select_file
+		if (arg0.getSource() == this.entrar) {
+
+			try {
+				char[] password = this.jtfPassword.getPassword();
+				String pass = new String(password);
+				cliente.logIn(this.jtfNombre.getText(), pass);
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} // fin entrar
+
+		if (arg0.getSource() == this.enviar) {// boton enviar imagene
+			if (!this.jtfRuta.getText().isEmpty()) {
+				this.ruta = this.jtfRuta.getText();
+				this.cliente.EnviarImagenPartida(this.ruta);
+			} else {
+				JOptionPane.showMessageDialog(rootPane, "Por Favor seleccione un archivo en el FileChooser");
+			} // se fiija si la ruta tiene informacion
+
+		}//fin enviar
+	}
+
+}// VentanaArchivos
