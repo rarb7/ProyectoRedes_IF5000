@@ -56,6 +56,7 @@ public class ClienteServidor extends Thread {
 		do {
 			try {
 				escucha = listen();
+				System.out.println("Servidor ---->"+escucha.getChild("Accion").getValue());
 				switch (escucha.getChild("Accion").getValue()) {
 				case "conectado":
 					System.out.println("se conecto");
@@ -88,19 +89,21 @@ public class ClienteServidor extends Thread {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					break;
 				case "registar":
 					
 					
 					String nombre=escucha.getAttributeValue("nombre");
+					System.out.print("resgitar "+nombre);
 					String pass=escucha.getChild("password").getValue();
 					System.out.println(nombre+" "+pass);
 					
 					usuarioBD.insertarUsuario(new Usuario(nombre,pass));
 					
-					
+					break;
 				case "login":
-					String nombreUser=escucha.getAttributeValue("nombre");
-					String passUser=escucha.getChild("password").getValue();
+					String nombreUser=escucha.getAttributeValue("nombre1");
+					String passUser=escucha.getChild("password1").getValue();
 					Boolean band=usuarioBD.verificarUsuario(nombreUser, passUser);
 
 					Element verificado = new Element("ExisteUser");
@@ -113,7 +116,7 @@ public class ClienteServidor extends Thread {
 					
 					Element verificarUser = accion(verificado, "verificado");
 					this.send.println(XMLConvert.xmlToString(verificarUser));
-//				
+					break;
 				default:
 					break;
 				}
