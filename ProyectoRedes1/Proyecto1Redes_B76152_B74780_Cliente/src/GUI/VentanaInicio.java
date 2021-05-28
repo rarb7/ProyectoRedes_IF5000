@@ -93,7 +93,8 @@ public class VentanaInicio extends JFrame implements ActionListener {
 
 	        }
 	        if (e.getSource() == this.itemMenuIniciar) {
-	            
+	            VentanaArchivos ventanaArchivo=new VentanaArchivos();
+	            this.deskPanel.add(ventanaArchivo);
 
 	        }
 

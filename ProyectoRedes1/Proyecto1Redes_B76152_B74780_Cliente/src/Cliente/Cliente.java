@@ -12,10 +12,12 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import Domain.Usuario;
 import Domain.subImages;
 import Utility.ImagesConvert;
 import Utility.XMLConvert;
@@ -31,6 +33,11 @@ public class Cliente extends Thread {
 	private Element menuprin;
 	private boolean host;
 	private BufferedImage image1;
+	private boolean verificado;
+	private Usuario usuario;
+	private String nombre;
+	private String password;
+	
 	
 	private Cliente(int socketPortNumber) throws IOException {
 		this.socketPortNumber = socketPortNumber;
@@ -58,10 +65,28 @@ public class Cliente extends Thread {
 				case "agregado":
 					System.out.println("conectado al servidor");
 //					sendImage();
-					EnviarImagenPartida("inosuke.jpg");
+					//EnviarImagenPartida("inosuke.jpg");
 					
 				case "verificado":
 					String verificacion=entrada.getAttributeValue("boolean1");
+					if (verificacion.equals("false")) {
+						verificado=false;
+					}else {
+						verificado=true;
+					}
+					
+					
+					if(verificado) {
+						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
+						
+						usuario=new Usuario(this.nombre,this.password);
+
+					}else {
+						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
+						this.nombre="";
+						this.password="";
+					}
+					System.out.println("Nombre "+this.nombre+" pass "+this.password);
 					
 					System.out.println("Usuario verificado desde cliente "+verificacion);
 			default:
@@ -130,6 +155,11 @@ public class Cliente extends Thread {
 		Element element = XMLConvert.generarLogIn(nombre, password);
 		Element verificar = acciones(element, "login");
 		this.send.println(XMLConvert.xmlToString(verificar));
+		this.nombre=nombre;
+		this.password=password;
 		return true;
+	}
+	public boolean getVerificado() {
+		return verificado;
 	}
 }
