@@ -1,11 +1,14 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -16,6 +19,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import Cliente.Cliente;
 import Domain.Usuario;
+import Utility.ImagesConvert;
 
 public class VentanaArchivos extends JInternalFrame implements ActionListener {
 	private JLabel jlblNombre;
@@ -34,6 +38,10 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 	private Usuario usuario;
 	private String nombreImagen;
 
+	private JLabel archivosServer;
+	private JComboBox<String> nombreArchivos;
+	private JButton comboBoxbutton;
+	private JLabel imagen;
 	// constructor
 	public VentanaArchivos() {
 		super("Envio de Archivos");
@@ -86,11 +94,30 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 		this.jtfRuta.setEnabled(false);
 		this.add(this.jtfRuta);
 
+		this.imagen = new JLabel("foto");
+		this.imagen.setBounds(50, 100, 200, 200);
+		this.imagen.setOpaque(true);
+		this.imagen.setBackground(Color.white);
+		this.add(this.imagen);
+		
 		this.enviar = new JButton("Enviar");
 		this.enviar.setBounds(300, 60, 100, 30);
 		this.enviar.addActionListener(this);
 		this.add(this.enviar);
 
+		this.archivosServer = new JLabel("Seleccione los Archivos del Cliente en el Servidor");
+		this.archivosServer.setBounds(300, 100, 300, 20);
+		this.add(this.archivosServer);
+		
+		this.comboBoxbutton = new JButton("ver");
+		this.comboBoxbutton.setBounds(400, 160, 60, 30);
+		this.comboBoxbutton.addActionListener(this);
+		this.add(this.comboBoxbutton);
+		
+		this.nombreArchivos = new JComboBox<String>();
+		this.nombreArchivos.setBounds(350, 130, 80, 20);
+		this.add(this.nombreArchivos);
+		
 	}
 
 	public String initJFileChooser() { // se iniciliza JFileChooser.
@@ -122,7 +149,8 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 			if(this.cliente.getVerificado()) {
 				this.ruta = initJFileChooser();
 				this.jtfRuta.setText(this.ruta);
-				
+				ImageIcon imgIcon = ImagesConvert.imageIcon(this.ruta);
+				this.imagen.setIcon(imgIcon);
 				System.out.println(this.ruta);
 			}else {
 				JOptionPane.showMessageDialog(rootPane, "Por Favor Inicie Sesion");
@@ -152,6 +180,13 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 			} // se fiija si la ruta tiene informacion
 
 		}//fin enviar
+		
+		if (arg0.getSource() == this.comboBoxbutton) {
+			String selectCb = this.nombreArchivos.getSelectedItem().toString();
+			this.cliente.pedirImagen(selectCb);
+			
+
+		}//ver
 	}
 
 }// VentanaArchivos

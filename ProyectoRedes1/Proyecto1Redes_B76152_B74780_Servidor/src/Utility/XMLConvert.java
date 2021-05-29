@@ -73,4 +73,20 @@ public class XMLConvert {
 		return fichas;
 	}
     
+    public static Element generarArchivoXml(ArrayList<String> archivos) {
+        Element eCasillas = new Element("archivos");
+        for (int i = 0; i < archivos.size(); i++) {
+            eCasillas.addContent(nombreArchivoxml((archivos.get(i))));
+        }
+        return eCasillas;
+    }//generaSubImagenes
+    
+    public static Element nombreArchivoxml(String nombre) {
+        Element eNombre = new Element("nombreimg");
+        eNombre.setAttribute("nombre", nombre);
+
+        return eNombre;
+    	
+    }
+
 }
