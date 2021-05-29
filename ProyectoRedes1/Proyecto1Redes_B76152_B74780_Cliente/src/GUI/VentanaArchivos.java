@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -17,11 +19,15 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.jdom.Element;
+import org.jdom.JDOMException;
+
 import Cliente.Cliente;
 import Domain.Usuario;
 import Utility.ImagesConvert;
+import Utility.XMLConvert;
 
-public class VentanaArchivos extends JInternalFrame implements ActionListener {
+public class VentanaArchivos extends JInternalFrame implements ActionListener, Runnable {
 	private JLabel jlblNombre;
 	private JTextField jtfNombre;
 	private JLabel jlblPassword;
@@ -42,6 +48,7 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 	private JComboBox<String> nombreArchivos;
 	private JButton comboBoxbutton;
 	private JLabel imagen;
+	private Thread hilo;
 	// constructor
 	public VentanaArchivos() {
 		super("Envio de Archivos");
@@ -52,7 +59,7 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 		this.setLayout(null);
 
 		this.init();
-
+		
 		this.setVisible(true);
 		try {
 			cliente = Cliente.getClient();
@@ -61,6 +68,12 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 			e.printStackTrace();
 		}
 	}
+	public void start() {
+        if (hilo == null) {
+            hilo = new Thread(this);
+            hilo.start();
+        }
+    }// start
 
 	// init
 	public void init() {
@@ -99,7 +112,7 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 		this.imagen.setOpaque(true);
 		this.imagen.setBackground(Color.white);
 		this.add(this.imagen);
-		
+
 		this.enviar = new JButton("Enviar");
 		this.enviar.setBounds(300, 60, 100, 30);
 		this.enviar.addActionListener(this);
@@ -108,16 +121,14 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 		this.archivosServer = new JLabel("Seleccione los Archivos del Cliente en el Servidor");
 		this.archivosServer.setBounds(300, 100, 300, 20);
 		this.add(this.archivosServer);
-		
+
 		this.comboBoxbutton = new JButton("ver");
 		this.comboBoxbutton.setBounds(400, 160, 60, 30);
 		this.comboBoxbutton.addActionListener(this);
 		this.add(this.comboBoxbutton);
-		
+
 		this.nombreArchivos = new JComboBox<String>();
 		this.nombreArchivos.setBounds(350, 130, 80, 20);
-		this.add(this.nombreArchivos);
-		
 	}
 
 	public String initJFileChooser() { // se iniciliza JFileChooser.
@@ -135,58 +146,131 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null, "Error. Archivo inválido.");
 		} else {
 			this.ruta = archivo.getAbsolutePath();
-			this.nombreImagen=archivo.getName();
+			this.nombreImagen = archivo.getName();
 		}
-		
 
 		return archivo.getAbsolutePath();
+	}
+
+	public void llenarCombo() {
+		
+
+		ArrayList<String> archivos;
+		try {
+			archivos = XMLConvert.archivosxmltoArray(this.cliente.entrada.getChild("archivos"));
+			for (String archivo : archivos) {
+				this.nombreArchivos.addItem(archivo);
+			}
+			this.add(this.nombreArchivos);
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 
 		if (arg0.getSource() == this.FileChooser) {
-			if(this.cliente.getVerificado()) {
+			if (this.cliente.getVerificado()) {
 				this.ruta = initJFileChooser();
 				this.jtfRuta.setText(this.ruta);
 				ImageIcon imgIcon = ImagesConvert.imageIcon(this.ruta);
 				this.imagen.setIcon(imgIcon);
 				System.out.println(this.ruta);
-			}else {
+			} else {
 				JOptionPane.showMessageDialog(rootPane, "Por Favor Inicie Sesion");
 			}
-			
+
 		} // select_file
 		if (arg0.getSource() == this.entrar) {
 
+			char[] password = this.jtfPassword.getPassword();
+			String pass = new String(password);
 			try {
-				char[] password = this.jtfPassword.getPassword();
-				String pass = new String(password);
 				cliente.logIn(this.jtfNombre.getText(), pass);
-
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			this.start();
+
+			
+			// llenarCombo();
+
 		} // fin entrar
 
 		if (arg0.getSource() == this.enviar) {// boton enviar imagene
 			if (!this.jtfRuta.getText().isEmpty()) {
 				this.ruta = this.jtfRuta.getText();
-				
-				this.cliente.EnviarImagenPartida(this.ruta,this.nombreImagen);
+
+				this.cliente.EnviarImagenPartida(this.ruta, this.nombreImagen);
 			} else {
 				JOptionPane.showMessageDialog(rootPane, "Por Favor seleccione un archivo en el FileChooser");
 			} // se fiija si la ruta tiene informacion
 
-		}//fin enviar
-		
+		} // fin enviar
+
 		if (arg0.getSource() == this.comboBoxbutton) {
 			String selectCb = this.nombreArchivos.getSelectedItem().toString();
 			this.cliente.pedirImagen(selectCb);
-			
 
-		}//ver
+		} // ver
 	}
 
-}// VentanaArchivos
+	@Override
+	public void run() {
+		do {
+		Element entrada = this.cliente.getEntrada();
+        switch (entrada.getChild("Accion").getValue()) {
+         case "verificado":
+        	 
+        	 String verificacion = entrada.getAttributeValue("boolean1");
+				if (verificacion.equals("false")) {
+					this.cliente.setVerificado(false);
+				} else {
+					this.cliente.setVerificado(true);
+				}
+
+				if (this.cliente.getVerificado()) {
+					
+
+					usuario = new Usuario(this.cliente.getNombre(), this.cliente.getPassword());
+					ArrayList<String> archivos;
+					try {
+						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
+						for (String string : archivos) {
+							System.out.println("Archivo---"+string);
+						}
+						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
+					} catch (JDOMException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
+					this.cliente.nombre = "";
+					this.cliente.password = "";
+				}
+				llenarCombo();
+        	 break;
+        	 
+        default:
+        	break;
+        	
+        }
+        }while(true);
+		
+	}
+
+}
+// VentanaArchivos
