@@ -30,14 +30,14 @@ public class Cliente extends Thread {
 	private BufferedReader receive;
 	private Socket socket;
 	private InetAddress address;
-	private Element entrada;
+	public Element entrada;
 	private Element menuprin;
 	private boolean host;
 	private BufferedImage image1;
-	private boolean verificado;
-	private Usuario usuario;
-	private String nombre;
-	private String password;
+	public boolean verificado;
+	public Usuario usuario;
+	public String nombre;
+	public String password;
 	private String imagenServidor;
 	private ArrayList<String> archivos;
 
@@ -49,6 +49,7 @@ public class Cliente extends Thread {
 		this.send = new PrintStream(this.socket.getOutputStream());
 		this.receive = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		this.host = false;
+		this.archivos=null;
 	} // constructor
 
 	public static Cliente getClient() throws IOException {
@@ -69,28 +70,34 @@ public class Cliente extends Thread {
 //					sendImage();
 					// EnviarImagenPartida("inosuke.jpg");
 					break;
-				case "verificado":
-					String verificacion = entrada.getAttributeValue("boolean1");
-					if (verificacion.equals("false")) {
-						verificado = false;
-					} else {
-						verificado = true;
-					}
-
-					if (verificado) {
-						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
-
-						usuario = new Usuario(this.nombre, this.password);
-						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
-					} else {
-						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
-						this.nombre = "";
-						this.password = "";
-					}
-					System.out.println("Nombre " + this.nombre + " pass " + this.password);
-
-					System.out.println("Usuario verificado desde cliente " + verificacion);
-					break;
+//				case "verificado":
+//					String verificacion = entrada.getAttributeValue("boolean1");
+//					if (verificacion.equals("false")) {
+//						verificado = false;
+//					} else {
+//						verificado = true;
+//					}
+//
+//					if (verificado) {
+//						
+//
+//						usuario = new Usuario(this.nombre, this.password);
+//						
+//						for (String string : archivos) {
+//							System.out.println("Archivo---"+string);
+//						}
+//						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
+//						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
+//					} else {
+//						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
+//						this.nombre = "";
+//						this.password = "";
+//					}
+//					System.out.println("Nombre " + this.nombre + " pass " + this.password);
+//
+//					System.out.println("Usuario verificado desde cliente " + verificacion);
+//					break;
+					
 				case "image":
 
 					imagenServidor = ImagesConvert.readImage(entrada.getAttributeValue("ruta"));
@@ -195,4 +202,41 @@ public class Cliente extends Thread {
 	public void setArchivos(ArrayList<String> archivos) {
 		this.archivos = archivos;
 	}
+
+	public Element getEntrada() {
+		return entrada;
+	}
+
+	public void setEntrada(Element entrada) {
+		this.entrada = entrada;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setVerificado(boolean verificado) {
+		this.verificado = verificado;
+	}
+	
 }

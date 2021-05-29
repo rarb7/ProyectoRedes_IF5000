@@ -264,7 +264,7 @@ public class ClienteServidor extends Thread {
 
 	public ArrayList<String> imagenesCarpetaUsuario(String nombreUsuario) {
 		ArrayList<String> nombresArchivos = new ArrayList<String>();
-		File carpeta = new File("/src/imagenesEnviadas/" + nombreUsuario);
+		File carpeta = new File("D:/UCR/UCR 2021/l Semestre/Redes/Proyecto/ProyectoRedes_IF5000/ProyectoRedes1/Proyecto1Redes_B76152_B74780_Servidor/src/imagenesEnviadas/" + nombreUsuario);
 		String[] listado = carpeta.list();
 		if (listado == null || listado.length == 0) {
 			System.out.println("No hay elementos dentro de la carpeta actual");
