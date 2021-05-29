@@ -37,6 +37,8 @@ public class ClienteServidor extends Thread {
 	private Element escucha;
 	private Element element;
 	DataUsuario usuarioBD;
+	private String nombre;
+	private String password;
 
 	public ClienteServidor(Socket socket) {
 		this.socketR = socket;
@@ -68,11 +70,13 @@ public class ClienteServidor extends Thread {
 					break;
 				case "imagenPartida":
 					System.out.println("Entro la imagen Partida");
+					String nombreImg=escucha.getChild("nombreImg").getValue();
 					try {
 						ArrayList<subImages> subImages = XMLConvert
 								.ImagenPartidaxmltoArray(escucha.getChild("subImagenes"));
 						ArrayList<imagenDecodificada> imagenesDeco = imgDecodificadas(subImages);
-						unirImagenes(imagenesDeco,"DesordenInosuke");
+						System.out.println("/////////////"+subImages.get(0).getName());
+						unirImagenes(imagenesDeco,"/"+nombre+"/Desordenada"+nombreImg);
 						System.out.println("imagenes en desorden");
 						for (int i = 0; i < imagenesDeco.size(); i++) {
 							System.out.println(imagenesDeco.get(i).getImagenId());
@@ -83,7 +87,7 @@ public class ClienteServidor extends Thread {
 							System.out.println(imgsOrdenadas.get(i).getImagenId());
 						}
 						
-						unirImagenes(imgsOrdenadas,"EnsambladoimgInosuke");
+						unirImagenes(imgsOrdenadas,"/"+nombre+"/"+nombreImg);
 						
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -98,17 +102,37 @@ public class ClienteServidor extends Thread {
 					String pass=escucha.getChild("password").getValue();
 					System.out.println(nombre+" "+pass);
 					
-					usuarioBD.insertarUsuario(new Usuario(nombre,pass));
-					
+					boolean band=usuarioBD.insertarUsuario(new Usuario(nombre,pass));
+					if(band) {
+					File directorioUser = new File("src/imagenesEnviadas/"+nombre);
+					File directorioUser1 = new File("src/imagenesRecibidas/"+nombre);
+					  if (!directorioUser.exists()) {
+				            if (directorioUser.mkdirs()) {
+				                System.out.println("Directorio creado");
+				            } else {
+				                System.out.println("Error al crear directorio");
+				            }
+				        }
+					  if (!directorioUser1.exists()) {
+				            if (directorioUser1.mkdirs()) {
+				                System.out.println("Directorio creado");
+				            } else {
+				                System.out.println("Error al crear directorio");
+				            }
+				        }
+					  
+					}
 					break;
 				case "login":
 					String nombreUser=escucha.getAttributeValue("nombre1");
 					String passUser=escucha.getChild("password1").getValue();
-					Boolean band=usuarioBD.verificarUsuario(nombreUser, passUser);
+					Boolean bandLogin=usuarioBD.verificarUsuario(nombreUser, passUser);
 
 					Element verificado = new Element("ExisteUser");
-					if (band) {
+					if (bandLogin) {
 						verificado.setAttribute("boolean1", "true");
+						this.nombre=nombreUser;
+						this.password=passUser;
 						
 					}else {
 						verificado.setAttribute("boolean1", "false");
@@ -136,7 +160,7 @@ public class ClienteServidor extends Thread {
 
 //		image1 = XMLConvert.xmltoBufferedImage(element);
 			byte[] imageByteArray = Base64.getDecoder().decode(element);
-			FileOutputStream imageOutFile = new FileOutputStream("src/imagenesEnviadas/saved.jpg");
+			FileOutputStream imageOutFile = new FileOutputStream("src/imagenesEnviadas/"+nombre+"/saved.jpg");
 			imageOutFile.write(imageByteArray);
 			imageOutFile.close();
 //		File outputfile = new File("/assets/saved.png");
@@ -186,7 +210,7 @@ public class ClienteServidor extends Thread {
 				BufferedImage img = ImagesConvert.joinImages(img1, img2);
 				imagenes.add(img);
 				try {
-					ImageIO.write(img, "jpg", new File("src/imagenesRecibidas/joinImageDos"+goal+".jpg"));
+					ImageIO.write(img, "jpg", new File("src/imagenesRecibidas/"+nombre+"/joinImageDos"+goal+".jpg"));
 					goal+=1;
 					//img = ImageIO.read(new File("src/imagenesRecibidas/savedRect"+1+".jpg"));
 				} catch (IOException e) {

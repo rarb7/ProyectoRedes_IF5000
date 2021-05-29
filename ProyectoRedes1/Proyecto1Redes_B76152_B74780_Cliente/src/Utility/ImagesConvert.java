@@ -16,11 +16,13 @@ public class ImagesConvert {
 		int width, height;
 		BufferedImage imagenPart1, imagenPart2;
 		ArrayList<subImages> imagenPartes = new ArrayList<>();
-
+		String nombreImagen="";
 		// primer corte//
 
 		try {
-			imagenPrincipal = ImageIO.read(new File("src/assets/"+ruta));
+			imagenPrincipal = ImageIO.read(new File(ruta));
+			nombreImagen=new File(ruta).getName();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -35,6 +37,7 @@ public class ImagesConvert {
 				try {
 					String subImagenString = XMLConvert.imagetoString(subImgage);
 					subImages subImagen = new subImages(subImagenString, iter);
+					subImagen.setName(nombreImagen);
 //					ImageIO.write(subImgage, "jpg", new File("src/assets/corte" + iter+ ".png"));
 					imagenPartes.add(subImagen);
 				} catch (IOException e) {

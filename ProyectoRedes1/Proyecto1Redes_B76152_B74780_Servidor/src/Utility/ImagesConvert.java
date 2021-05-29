@@ -82,7 +82,7 @@ public class ImagesConvert {
 			heightCurr += bufferedImage.getHeight();
 		}
 		try {
-			ImageIO.write(concatImage, "jpg", new File("src/imagenesEnviadas/Imagen"+ruta+".jpg"));
+			ImageIO.write(concatImage, "jpg", new File("src/imagenesEnviadas/"+ruta+".jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 public class subImages {
 	private String imagen;
 	private int imagenId;
+	private String name;
 	
 	public subImages() {
 		this.imagen = "";
@@ -38,6 +39,13 @@ public class subImages {
 
 	public void setImagenId(int imagenId) {
 		this.imagenId = imagenId;
+	}
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	

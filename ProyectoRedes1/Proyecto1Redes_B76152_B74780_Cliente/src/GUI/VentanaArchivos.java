@@ -32,6 +32,7 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 	private String ruta;
 	private Cliente cliente;
 	private Usuario usuario;
+	private String nombreImagen;
 
 	// constructor
 	public VentanaArchivos() {
@@ -106,10 +107,12 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 			this.jfcSelector.cancelSelection();
 			JOptionPane.showMessageDialog(null, "Error. Archivo inválido.");
 		} else {
-			this.ruta = archivo.getName();
+			this.ruta = archivo.getAbsolutePath();
+			this.nombreImagen=archivo.getName();
 		}
+		
 
-		return archivo.getName();
+		return archivo.getAbsolutePath();
 	}
 
 	@Override
@@ -119,7 +122,7 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 			if(this.cliente.getVerificado()) {
 				this.ruta = initJFileChooser();
 				this.jtfRuta.setText(this.ruta);
-
+				
 				System.out.println(this.ruta);
 			}else {
 				JOptionPane.showMessageDialog(rootPane, "Por Favor Inicie Sesion");
@@ -142,7 +145,8 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener {
 		if (arg0.getSource() == this.enviar) {// boton enviar imagene
 			if (!this.jtfRuta.getText().isEmpty()) {
 				this.ruta = this.jtfRuta.getText();
-				this.cliente.EnviarImagenPartida(this.ruta);
+				
+				this.cliente.EnviarImagenPartida(this.ruta,this.nombreImagen);
 			} else {
 				JOptionPane.showMessageDialog(rootPane, "Por Favor seleccione un archivo en el FileChooser");
 			} // se fiija si la ruta tiene informacion

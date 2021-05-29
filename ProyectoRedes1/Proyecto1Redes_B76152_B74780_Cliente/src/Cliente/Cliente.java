@@ -39,6 +39,8 @@ public class Cliente extends Thread {
 	private String password;
 	
 	
+	
+	
 	private Cliente(int socketPortNumber) throws IOException {
 		this.socketPortNumber = socketPortNumber;
 		this.address = InetAddress.getLocalHost();
@@ -66,7 +68,7 @@ public class Cliente extends Thread {
 					System.out.println("conectado al servidor");
 //					sendImage();
 					//EnviarImagenPartida("inosuke.jpg");
-					
+					break;
 				case "verificado":
 					String verificacion=entrada.getAttributeValue("boolean1");
 					if (verificacion.equals("false")) {
@@ -89,6 +91,7 @@ public class Cliente extends Thread {
 					System.out.println("Nombre "+this.nombre+" pass "+this.password);
 					
 					System.out.println("Usuario verificado desde cliente "+verificacion);
+					break;
 			default:
 				break;
 			}
@@ -131,7 +134,7 @@ public class Cliente extends Thread {
 		return element;
 	}// acciones
 	
-	public void EnviarImagenPartida(String rutaImagen) {
+	public void EnviarImagenPartida(String rutaImagen,String nombreImagen) {
 		Element envioImagen = new Element("EnvioImagen");
 		ArrayList<subImages> subImagenes = ImagesConvert.partirImagenes(rutaImagen);
 		
@@ -139,7 +142,13 @@ public class Cliente extends Thread {
 		
 		Element imagenesPartidas = XMLConvert.generarSubImagenesXML(subImagenes);
 		envioImagen.addContent(imagenesPartidas);
+		Element envioNombreImg = new Element("nombreImg");
+		envioNombreImg.addContent(nombreImagen);
+		
+		envioImagen.addContent(envioNombreImg);
 		Element envio = acciones(envioImagen, "imagenPartida");
+		
+		
 		
 		this.send.println(XMLConvert.xmlToString(envio));
 	}
