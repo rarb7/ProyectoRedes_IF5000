@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -95,4 +96,14 @@ public class XMLConvert {
 		return eInicio;
 	}
 
+    public static ArrayList<String> archivosxmltoArray(Element element) throws JDOMException, IOException {
+		ArrayList<String> fichas = new ArrayList<String>();
+		List elementList = element.getContent();
+		for (Object object : elementList) {
+			Element elementoActual = (Element) object;
+			String nombreArch = elementoActual.getAttributeValue("nombre");			
+			fichas.add(nombreArch);
+		}
+		return fichas;
+	}
 }

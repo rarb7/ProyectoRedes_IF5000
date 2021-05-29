@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import org.jdom.Element;
@@ -37,10 +38,9 @@ public class Cliente extends Thread {
 	private Usuario usuario;
 	private String nombre;
 	private String password;
-	
-	
-	
-	
+	private String imagenServidor;
+	private ArrayList<String> archivos;
+
 	private Cliente(int socketPortNumber) throws IOException {
 		this.socketPortNumber = socketPortNumber;
 		this.address = InetAddress.getLocalHost();
@@ -67,34 +67,41 @@ public class Cliente extends Thread {
 				case "agregado":
 					System.out.println("conectado al servidor");
 //					sendImage();
-					//EnviarImagenPartida("inosuke.jpg");
+					// EnviarImagenPartida("inosuke.jpg");
 					break;
 				case "verificado":
-					String verificacion=entrada.getAttributeValue("boolean1");
+					String verificacion = entrada.getAttributeValue("boolean1");
 					if (verificacion.equals("false")) {
-						verificado=false;
-					}else {
-						verificado=true;
+						verificado = false;
+					} else {
+						verificado = true;
 					}
-					
-					
-					if(verificado) {
-						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
-						
-						usuario=new Usuario(this.nombre,this.password);
 
-					}else {
+					if (verificado) {
+						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
+
+						usuario = new Usuario(this.nombre, this.password);
+						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
+					} else {
 						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
-						this.nombre="";
-						this.password="";
+						this.nombre = "";
+						this.password = "";
 					}
-					System.out.println("Nombre "+this.nombre+" pass "+this.password);
-					
-					System.out.println("Usuario verificado desde cliente "+verificacion);
+					System.out.println("Nombre " + this.nombre + " pass " + this.password);
+
+					System.out.println("Usuario verificado desde cliente " + verificacion);
 					break;
-			default:
-				break;
-			}
+				case "image":
+
+					imagenServidor = ImagesConvert.readImage(entrada.getAttributeValue("ruta"));
+					ImageIcon imgIcon = ImagesConvert.imageIcon(imagenServidor);
+					JOptionPane.showMessageDialog(null, null, "Image desde el Servidor",
+							JOptionPane.INFORMATION_MESSAGE, imgIcon);
+
+					break;
+				default:
+					break;
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -104,54 +111,53 @@ public class Cliente extends Thread {
 			}
 		} while (true);
 	}// run
-	
+
 	private void sendImage() {
 //		// TODO Auto-generated method stub
-	String imagePath = null;
-	try {
-		this.image1 = ImageIO.read(getClass().getResourceAsStream("/assets/crash.jpg"));
-		 imagePath = XMLConvert.imagetoString(image1);
-		 System.out.println(imagePath);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		String imagePath = null;
+		try {
+			this.image1 = ImageIO.read(getClass().getResourceAsStream("/assets/crash.jpg"));
+			imagePath = XMLConvert.imagetoString(image1);
+			System.out.println(imagePath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Element enviarImagen = new Element("Imagen");
+		enviarImagen.setAttribute("ruta", imagePath);
+		Element envio = acciones(enviarImagen, "image");
+		this.send.println(XMLConvert.xmlToString(envio));
+
 	}
-	Element enviarImagen = new Element("Imagen");
-	enviarImagen.setAttribute("ruta", imagePath);
-    Element envio = acciones(enviarImagen, "image");
-	this.send.println(XMLConvert.xmlToString(envio));
-		
-}
 
 	public Element listen() throws IOException, JDOMException {
 		return XMLConvert.stringToXML(this.receive.readLine());
 	}// listen
-	
+
 	public Element acciones(Element element, String accion) {
 		Element eAccion = new Element("Accion");
 		eAccion.addContent(accion);
 		element.addContent(eAccion);
 		return element;
 	}// acciones
-	
-	public void EnviarImagenPartida(String rutaImagen,String nombreImagen) {
+
+	public void EnviarImagenPartida(String rutaImagen, String nombreImagen) {
 		Element envioImagen = new Element("EnvioImagen");
 		ArrayList<subImages> subImagenes = ImagesConvert.partirImagenes(rutaImagen);
-		
+
 		Collections.shuffle(subImagenes);
-		
+
 		Element imagenesPartidas = XMLConvert.generarSubImagenesXML(subImagenes);
 		envioImagen.addContent(imagenesPartidas);
 		Element envioNombreImg = new Element("nombreImg");
 		envioNombreImg.addContent(nombreImagen);
-		
+
 		envioImagen.addContent(envioNombreImg);
 		Element envio = acciones(envioImagen, "imagenPartida");
-		
-		
-		
+
 		this.send.println(XMLConvert.xmlToString(envio));
 	}
+
 	public boolean registarCliente(String nombre, String password) throws IOException {
 
 		Element element = XMLConvert.generarLogIn(nombre, password);
@@ -160,15 +166,33 @@ public class Cliente extends Thread {
 		return true;
 
 	}
+
 	public boolean logIn(String nombre, String password) throws IOException {
 		Element element = XMLConvert.generarLogIn1(nombre, password);
 		Element verificar = acciones(element, "login");
 		this.send.println(XMLConvert.xmlToString(verificar));
-		this.nombre=nombre;
-		this.password=password;
+		this.nombre = nombre;
+		this.password = password;
 		return true;
 	}
+
 	public boolean getVerificado() {
 		return verificado;
+	}
+	
+	public void pedirImagen(String selectCb) {
+		Element pedirImagen = new Element("nameImage");
+		pedirImagen.addContent(selectCb);
+		
+		Element envio = acciones(pedirImagen, "pedirArchivoUsuario");
+		this.send.println(XMLConvert.xmlToString(envio));
+	}//
+
+	public ArrayList<String> getArchivos() {
+		return archivos;
+	}
+
+	public void setArchivos(ArrayList<String> archivos) {
+		this.archivos = archivos;
 	}
 }
