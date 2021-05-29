@@ -1,7 +1,5 @@
 /Cliente/
-/Domain/
-/Main/
-/Utility/
-/assets/
-/libs/
 /GUI/
+/Utility/
+/Domain/
+/assets/
