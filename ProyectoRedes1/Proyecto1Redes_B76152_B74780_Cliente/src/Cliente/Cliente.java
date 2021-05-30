@@ -64,44 +64,48 @@ public class Cliente extends Thread {
 		do {
 			try {
 				entrada = listen();
+				System.out.println("Cliente ---->" + entrada.getChild("Accion").getValue());
 				switch (entrada.getChild("Accion").getValue()) {
 				case "agregado":
 					System.out.println("conectado al servidor");
 //					sendImage();
 					// EnviarImagenPartida("inosuke.jpg");
 					break;
-//				case "verificado":
-//					String verificacion = entrada.getAttributeValue("boolean1");
-//					if (verificacion.equals("false")) {
-//						verificado = false;
-//					} else {
-//						verificado = true;
-//					}
-//
-//					if (verificado) {
-//						
-//
-//						usuario = new Usuario(this.nombre, this.password);
-//						
-//						for (String string : archivos) {
-//							System.out.println("Archivo---"+string);
-//						}
-//						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
-//						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
-//					} else {
-//						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
-//						this.nombre = "";
-//						this.password = "";
-//					}
-//					System.out.println("Nombre " + this.nombre + " pass " + this.password);
-//
-//					System.out.println("Usuario verificado desde cliente " + verificacion);
-//					break;
+				case "verificado":
+					String verificacion = entrada.getAttributeValue("boolean1");
+					if (verificacion.equals("false")) {
+						verificado = false;
+					} else {
+						verificado = true;
+					}
+
+					if (verificado) {
+						
+
+						usuario = new Usuario(this.nombre, this.password);
+						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
+						for (String string : archivos) {
+							System.out.println("Archivo---"+string);
+						}
+						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
+						
+					} else {
+						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
+						this.nombre = "";
+						this.password = "";
+					}
+					System.out.println("Nombre " + this.nombre + " pass " + this.password);
+
+					System.out.println("Usuario verificado desde cliente " + verificacion);
+					break;
 					
 				case "image":
 
-					imagenServidor = ImagesConvert.readImage(entrada.getAttributeValue("ruta"));
-					ImageIcon imgIcon = ImagesConvert.imageIcon(imagenServidor);
+					ImagesConvert.readImage(entrada.getAttributeValue("ruta"));
+					System.out.println("Entrada imagen desde el cliten "+entrada.getAttributeValue("ruta"));
+					System.out.println("images clienteee----");
+					
+					ImageIcon imgIcon = ImagesConvert.imageIcon("D:/UCR/UCR 2021/l Semestre/Redes/Proyecto/ProyectoRedes_IF5000/ProyectoRedes1/Proyecto1Redes_B76152_B74780_Cliente/src/imagenesServidor/imagenDesdeServidor.jpg");
 					JOptionPane.showMessageDialog(null, null, "Image desde el Servidor",
 							JOptionPane.INFORMATION_MESSAGE, imgIcon);
 
@@ -189,7 +193,7 @@ public class Cliente extends Thread {
 	
 	public void pedirImagen(String selectCb) {
 		Element pedirImagen = new Element("nameImage");
-		pedirImagen.addContent(selectCb);
+		pedirImagen.setAttribute("nombreImagen",selectCb);
 		
 		Element envio = acciones(pedirImagen, "pedirArchivoUsuario");
 		this.send.println(XMLConvert.xmlToString(envio));

@@ -132,9 +132,16 @@ public class ClienteServidor extends Thread {
 						verificado.setAttribute("boolean1", "true");
 						this.nombre = nombreUser;
 						this.password = passUser;
-						ArrayList<String> archivos = imagenesCarpetaUsuario(nombreUser);
-						Element archivosUsuario = XMLConvert.generarArchivoXml(archivos);
-						verificado.addContent(archivosUsuario);
+						if (imagenesCarpetaUsuario(nombreUser) == null
+								|| imagenesCarpetaUsuario(nombreUser).isEmpty()) {
+							ArrayList<String> archivos = null;
+							Element archivosUsuario = null;
+							verificado.addContent(archivosUsuario);
+						} else {
+							ArrayList<String> archivos = imagenesCarpetaUsuario(nombreUser);
+							Element archivosUsuario = XMLConvert.generarArchivoXml(archivos);
+							verificado.addContent(archivosUsuario);
+						}
 
 					} else {
 						verificado.setAttribute("boolean1", "false");
@@ -144,7 +151,11 @@ public class ClienteServidor extends Thread {
 					this.send.println(XMLConvert.xmlToString(verificarUser));
 					break;
 				case "pedirArchivoUsuario":
-					String nameImage = escucha.getChild("nameImage").getValue();
+
+					String nameImage = escucha.getAttributeValue("nombreImagen");
+					System.out.println("Nombre Imagen que llego al servidor " + nameImage);
+					this.sendImage(nameImage, this.nombre);
+
 					break;
 				default:
 					break;
@@ -264,7 +275,9 @@ public class ClienteServidor extends Thread {
 
 	public ArrayList<String> imagenesCarpetaUsuario(String nombreUsuario) {
 		ArrayList<String> nombresArchivos = new ArrayList<String>();
-		File carpeta = new File("D:/UCR/UCR 2021/l Semestre/Redes/Proyecto/ProyectoRedes_IF5000/ProyectoRedes1/Proyecto1Redes_B76152_B74780_Servidor/src/imagenesEnviadas/" + nombreUsuario);
+		File carpeta = new File(
+				"D:/UCR/UCR 2021/l Semestre/Redes/Proyecto/ProyectoRedes_IF5000/ProyectoRedes1/Proyecto1Redes_B76152_B74780_Servidor/src/imagenesEnviadas/"
+						+ nombreUsuario);
 		String[] listado = carpeta.list();
 		if (listado == null || listado.length == 0) {
 			System.out.println("No hay elementos dentro de la carpeta actual");
@@ -280,13 +293,17 @@ public class ClienteServidor extends Thread {
 	}// obtiene los archivos asociados al usuario
 
 	private void sendImage(String nombre, String usuario) {
+		System.out.println("Nombre imagen " + nombre);
+		System.out.println("Nombre usuario " + usuario);
 //		// TODO Auto-generated method stub
 		String imagePath = null;
 		try {
-			BufferedImage image1 = ImageIO
-					.read(getClass().getResourceAsStream("src/imagenesEnviadas/" + usuario + "/" + nombre));
+			File file = new File(
+					"D:/UCR/UCR 2021/l Semestre/Redes/Proyecto/ProyectoRedes_IF5000/ProyectoRedes1/Proyecto1Redes_B76152_B74780_Servidor/src/imagenesEnviadas/"
+							+ usuario + "/" + nombre);
+			BufferedImage image1 = ImageIO.read(file);
 			imagePath = XMLConvert.imagetoString(image1);
-			System.out.println(imagePath);
+			System.out.println("ruta iamgen en send Image " + imagePath);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
