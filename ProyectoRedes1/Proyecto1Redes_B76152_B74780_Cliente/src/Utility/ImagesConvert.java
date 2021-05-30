@@ -62,24 +62,43 @@ public class ImagesConvert {
 
 	}
 
-	public static String readImage(String element) {
-		BufferedImage image1 = null;
-		String ruta = " ";
-		try {
+//	public static String readImage(String element) {
+//		BufferedImage image1 = null;
+//		String ruta = " ";
+//		try {
+//
+////			image1 = XMLConvert.xmltoBufferedImage(element);
+//			byte[] imageByteArray = Base64.getDecoder().decode(element);
+//			FileOutputStream imageOutFile = new FileOutputStream("src/imagenesServidor/" + element);
+//			imageOutFile.write(imageByteArray);
+//			imageOutFile.close();
+//			image1 = ImageIO.read(new File("src/imagenesServidor/" + element));
+//			ruta = "src/imagenesServidor/" + element;
+//			System.out.println("Ruta---- "+ruta);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return ruta;
+//	}
+	public static void readImage(String element) {
+        BufferedImage image1;
+        try {
 
-//			image1 = XMLConvert.xmltoBufferedImage(element);
-			byte[] imageByteArray = Base64.getDecoder().decode(element);
-			FileOutputStream imageOutFile = new FileOutputStream("src/imagenesServidor/" + element);
-			imageOutFile.write(imageByteArray);
-			imageOutFile.close();
-			image1 = ImageIO.read(new File("src/imagenesServidor/" + element));
-			ruta = "src/imagenesServidor/" + element;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ruta;
-	}// fin readImage decodifica la imagen y la guarda
+        image1 = XMLConvert.xmltoBufferedImage(element);
+            byte[] imageByteArray = Base64.getDecoder().decode(element);
+            FileOutputStream imageOutFile = new FileOutputStream("src/imagenesServidor/imagenDesdeServidor.jpg");
+            imageOutFile.write(imageByteArray);
+            imageOutFile.close();
+        File outputfile = new File("src/imagenesServidor/imagenDesdeServidor.jpg");
+        ImageIO.write(image1, "jpg",outputfile );
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+	// fin readImage decodifica la imagen y la guarda
 
 	public static ImageIcon imageIcon(String ruta) {
 		ImageIcon imgIcon = null;

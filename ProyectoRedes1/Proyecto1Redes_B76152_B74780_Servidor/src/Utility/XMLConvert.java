@@ -45,7 +45,7 @@ public class XMLConvert {
     
     public static String imagetoString(BufferedImage image) throws IOException {
     	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", baos);
+        ImageIO.write(image, "jpg", baos);
         baos.flush();
         String encodedImage = Base64.getEncoder().encodeToString(baos.toByteArray());
         baos.close();

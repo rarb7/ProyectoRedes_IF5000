@@ -47,8 +47,11 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener, R
 	private JLabel archivosServer;
 	private JComboBox<String> nombreArchivos;
 	private JButton comboBoxbutton;
+
 	private JLabel imagen;
 	private Thread hilo;
+	private JButton btnCerrar;
+
 	// constructor
 	public VentanaArchivos() {
 		super("Envio de Archivos");
@@ -59,21 +62,30 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener, R
 		this.setLayout(null);
 
 		this.init();
-		
+
 		this.setVisible(true);
 		try {
 			cliente = Cliente.getClient();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
 	public void start() {
-        if (hilo == null) {
-            hilo = new Thread(this);
-            hilo.start();
-        }
-    }// start
+		if (hilo == null) {
+			hilo = new Thread(this);
+			hilo.start();
+		}
+	}// start
+
+	public void stop() {
+		if (hilo != null) {
+
+			hilo.stop();
+		}
+	}
 
 	// init
 	public void init() {
@@ -127,8 +139,14 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener, R
 		this.comboBoxbutton.addActionListener(this);
 		this.add(this.comboBoxbutton);
 
+		this.btnCerrar = new JButton("Salir");
+		this.btnCerrar.setBounds(500, 60, 100, 30);
+		this.btnCerrar.addActionListener(this);
+		this.add(this.btnCerrar);
+
 		this.nombreArchivos = new JComboBox<String>();
 		this.nombreArchivos.setBounds(350, 130, 80, 20);
+		this.add(this.nombreArchivos);
 	}
 
 	public String initJFileChooser() { // se iniciliza JFileChooser.
@@ -153,23 +171,18 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener, R
 	}
 
 	public void llenarCombo() {
-		
 
 		ArrayList<String> archivos;
-		try {
-			archivos = XMLConvert.archivosxmltoArray(this.cliente.entrada.getChild("archivos"));
+		if (cliente.getArchivos() == null || cliente.getArchivos().isEmpty()) {
+
+		} else {
+			archivos = cliente.getArchivos();
 			for (String archivo : archivos) {
 				this.nombreArchivos.addItem(archivo);
 			}
-			this.add(this.nombreArchivos);
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
+			this.stop();
+		}
 	}
 
 	@Override
@@ -193,13 +206,12 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener, R
 			String pass = new String(password);
 			try {
 				cliente.logIn(this.jtfNombre.getText(), pass);
+				this.start();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			this.start();
 
-			
 			// llenarCombo();
 
 		} // fin entrar
@@ -217,59 +229,38 @@ public class VentanaArchivos extends JInternalFrame implements ActionListener, R
 
 		if (arg0.getSource() == this.comboBoxbutton) {
 			String selectCb = this.nombreArchivos.getSelectedItem().toString();
+			System.out.println("Nombre imagen seleccionada:----- " + selectCb);
 			this.cliente.pedirImagen(selectCb);
 
 		} // ver
+
+		if (arg0.getSource() == this.btnCerrar) {
+			this.dispose();
+			stop();
+			this.comboBoxbutton.removeAll();
+
+		}
 	}
+
+	private ArrayList<String> archivos = new ArrayList<String>();
 
 	@Override
 	public void run() {
 		do {
-		Element entrada = this.cliente.getEntrada();
-        switch (entrada.getChild("Accion").getValue()) {
-         case "verificado":
-        	 
-        	 String verificacion = entrada.getAttributeValue("boolean1");
-				if (verificacion.equals("false")) {
-					this.cliente.setVerificado(false);
-				} else {
-					this.cliente.setVerificado(true);
-				}
+			if (cliente.getArchivos() != null) {
+				archivos = cliente.getArchivos();
+			} else {
+				System.out.println("cliente.getArchivos() ------No hay nada");
+			}
 
-				if (this.cliente.getVerificado()) {
-					
-
-					usuario = new Usuario(this.cliente.getNombre(), this.cliente.getPassword());
-					ArrayList<String> archivos;
-					try {
-						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
-						for (String string : archivos) {
-							System.out.println("Archivo---"+string);
-						}
-						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
-					} catch (JDOMException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					
-				} else {
-					JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
-					this.cliente.nombre = "";
-					this.cliente.password = "";
-				}
+			if (archivos.isEmpty() || archivos == null) {
+				System.out.println("No hay nada");
+			} else {
 				llenarCombo();
-        	 break;
-        	 
-        default:
-        	break;
-        	
-        }
-        }while(true);
-		
+			}
+
+		} while (true);
+
 	}
 
 }
