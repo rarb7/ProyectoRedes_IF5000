@@ -45,6 +45,7 @@ public class ClienteServidor extends Thread {
 		this.activo = false;
 		this.adminClientes = AdministracionCliente.getInstance();
 		usuarioBD = new DataUsuario();
+		this.escucha=new Element("accion");
 		try {
 			this.send = new PrintStream(this.socketR.getOutputStream());
 			this.receive = new BufferedReader(new InputStreamReader(this.socketR.getInputStream()));
@@ -58,7 +59,7 @@ public class ClienteServidor extends Thread {
 		do {
 			try {
 				escucha = listen();
-				System.out.println("Servidor ---->" + escucha.getChild("Accion").getValue());
+
 				switch (escucha.getChild("Accion").getValue()) {
 				case "conectado":
 					System.out.println("se conecto");
@@ -88,7 +89,22 @@ public class ClienteServidor extends Thread {
 						}
 
 						unirImagenes(imgsOrdenadas, "/" + nombre + "/" + nombreImg);
+						Element verificado = new Element("files");
+                        verificado.setAttribute("cargar", "true");
+                        
+                        if (imagenesCarpetaUsuario(this.nombre) == null || imagenesCarpetaUsuario(this.nombre).isEmpty()) {
+                            ArrayList<String> archivos = new ArrayList<String>();
+                            archivos.add("no hay");
+                            Element archivosUsuario = XMLConvert.generarArchivoXml(archivos);
+                            verificado.addContent(archivosUsuario);
+                        } else {
+                            ArrayList<String> archivos = imagenesCarpetaUsuario(this.nombre);
+                            Element archivosUsuario = XMLConvert.generarArchivoXml(archivos);
+                            verificado.addContent(archivosUsuario);
+                        }
 
+                        Element verificarUser = accion(verificado, "cargarCombo");
+                        this.send.println(XMLConvert.xmlToString(verificarUser));
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -134,9 +150,10 @@ public class ClienteServidor extends Thread {
 						this.password = passUser;
 						if (imagenesCarpetaUsuario(nombreUser) == null
 								|| imagenesCarpetaUsuario(nombreUser).isEmpty()) {
-							ArrayList<String> archivos = null;
-							Element archivosUsuario = null;
-							verificado.addContent(archivosUsuario);
+							ArrayList<String> archivos = new ArrayList<String>();
+                            archivos.add("no hay");
+                            Element archivosUsuario = XMLConvert.generarArchivoXml(archivos);
+                            verificado.addContent(archivosUsuario);
 						} else {
 							ArrayList<String> archivos = imagenesCarpetaUsuario(nombreUser);
 							Element archivosUsuario = XMLConvert.generarArchivoXml(archivos);
@@ -157,8 +174,25 @@ public class ClienteServidor extends Thread {
 					this.sendImage(nameImage, this.nombre);
 
 					break;
+				case "duplicado":
+
+					String nombreUsuario = escucha.getAttributeValue("nombreUser");
+					boolean duplicado=true;
+					Element verificadoUserNuevo = new Element("ExisteUser");
+					if (usuarioBD.verificarUsuarioNuevo(nombreUsuario)) {
+						duplicado=true;
+						verificadoUserNuevo.setAttribute("booleanBD", "true");
+					}else {
+						duplicado=false;
+						verificadoUserNuevo.setAttribute("booleanBD", "false");
+					}
+					Element verificaBD = accion(verificadoUserNuevo, "verificadoBD");
+					this.send.println(XMLConvert.xmlToString(verificaBD));
+					break;
+				
 				default:
 					break;
+					
 				}
 			} catch (JDOMException ex) {
 				Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -171,16 +205,13 @@ public class ClienteServidor extends Thread {
 	}
 
 	private void readImage(String element) {
-		BufferedImage image1;
 		try {
 
-//		image1 = XMLConvert.xmltoBufferedImage(element);
 			byte[] imageByteArray = Base64.getDecoder().decode(element);
 			FileOutputStream imageOutFile = new FileOutputStream("src/imagenesEnviadas/" + nombre + "/saved.jpg");
 			imageOutFile.write(imageByteArray);
 			imageOutFile.close();
-//		File outputfile = new File("/assets/saved.png");
-//		ImageIO.write(image1, "jpg",outputfile );
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

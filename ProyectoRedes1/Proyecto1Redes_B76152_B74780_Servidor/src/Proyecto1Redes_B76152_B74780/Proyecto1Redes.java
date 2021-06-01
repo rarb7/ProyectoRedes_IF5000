@@ -22,7 +22,7 @@ public class Proyecto1Redes {
 	public static void main(String[] args) {
 // TODO Auto-generated method stub
 		Server server;
-		server = new Server(69);
+		server = new Server(5025);
 		server.start();
 
 //		System.out.println("Nombre imagen "+nombre);

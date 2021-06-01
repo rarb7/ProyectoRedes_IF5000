@@ -106,4 +106,13 @@ public class XMLConvert {
 		}
 		return fichas;
 	}
+
+	public static Element verificando(String nombre) {
+		
+		Element eInicio = new Element("UsuarioVerificar");
+		eInicio.setAttribute("nombreUser", nombre);
+
+
+		return eInicio;
+	}
 }
