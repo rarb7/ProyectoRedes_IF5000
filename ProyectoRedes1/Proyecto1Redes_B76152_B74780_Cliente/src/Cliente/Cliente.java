@@ -30,16 +30,17 @@ public class Cliente extends Thread {
 	private BufferedReader receive;
 	private Socket socket;
 	private InetAddress address;
-	public Element entrada;
+	public Element entrada=new Element("hola");
 	private Element menuprin;
 	private boolean host;
 	private BufferedImage image1;
 	public boolean verificado;
-	public Usuario usuario;
+	public Usuario usuario=new Usuario();
 	public String nombre;
 	public String password;
 	private String imagenServidor;
 	private ArrayList<String> archivos;
+	public boolean verificadoBD;
 
 	private Cliente(int socketPortNumber) throws IOException {
 		this.socketPortNumber = socketPortNumber;
@@ -49,13 +50,14 @@ public class Cliente extends Thread {
 		this.send = new PrintStream(this.socket.getOutputStream());
 		this.receive = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		this.host = false;
-		this.archivos=null;
+		this.archivos = null;
 	} // constructor
 
 	public static Cliente getClient() throws IOException {
 		if (instance == null) {
-			instance = new Cliente(69);
+			instance = new Cliente(5025);
 			instance.start();
+			
 		}
 		return instance;
 	}
@@ -64,52 +66,13 @@ public class Cliente extends Thread {
 		do {
 			try {
 				entrada = listen();
-				System.out.println("Cliente ---->" + entrada.getChild("Accion").getValue());
+				
 				switch (entrada.getChild("Accion").getValue()) {
 				case "agregado":
 					System.out.println("conectado al servidor");
-//					sendImage();
-					// EnviarImagenPartida("inosuke.jpg");
-					break;
-				case "verificado":
-					String verificacion = entrada.getAttributeValue("boolean1");
-					if (verificacion.equals("false")) {
-						verificado = false;
-					} else {
-						verificado = true;
-					}
-
-					if (verificado) {
-						
-
-						usuario = new Usuario(this.nombre, this.password);
-						archivos = XMLConvert.archivosxmltoArray(entrada.getChild("archivos"));
-						for (String string : archivos) {
-							System.out.println("Archivo---"+string);
-						}
-						JOptionPane.showMessageDialog(null, "Inicio de Seccion Correcto");
-						
-					} else {
-						JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta");
-						this.nombre = "";
-						this.password = "";
-					}
-					System.out.println("Nombre " + this.nombre + " pass " + this.password);
-
-					System.out.println("Usuario verificado desde cliente " + verificacion);
-					break;
-					
-				case "image":
-
-					ImagesConvert.readImage(entrada.getAttributeValue("ruta"));
-					System.out.println("Entrada imagen desde el cliten "+entrada.getAttributeValue("ruta"));
-					System.out.println("images clienteee----");
-					
-					ImageIcon imgIcon = ImagesConvert.imageIcon("D:/UCR/UCR 2021/l Semestre/Redes/Proyecto/ProyectoRedes_IF5000/ProyectoRedes1/Proyecto1Redes_B76152_B74780_Cliente/src/imagenesServidor/imagenDesdeServidor.jpg");
-					JOptionPane.showMessageDialog(null, null, "Image desde el Servidor",
-							JOptionPane.INFORMATION_MESSAGE, imgIcon);
 
 					break;
+
 				default:
 					break;
 				}
@@ -169,6 +132,15 @@ public class Cliente extends Thread {
 		this.send.println(XMLConvert.xmlToString(envio));
 	}
 
+	public boolean verificiandoNuevoCliente(String nombre) throws IOException {
+
+		Element element = XMLConvert.verificando(nombre);
+		Element verificar = acciones(element, "duplicado");
+		this.send.println(XMLConvert.xmlToString(verificar));
+		return true;
+
+	}
+
 	public boolean registarCliente(String nombre, String password) throws IOException {
 
 		Element element = XMLConvert.generarLogIn(nombre, password);
@@ -190,11 +162,11 @@ public class Cliente extends Thread {
 	public boolean getVerificado() {
 		return verificado;
 	}
-	
+
 	public void pedirImagen(String selectCb) {
 		Element pedirImagen = new Element("nameImage");
-		pedirImagen.setAttribute("nombreImagen",selectCb);
-		
+		pedirImagen.setAttribute("nombreImagen", selectCb);
+
 		Element envio = acciones(pedirImagen, "pedirArchivoUsuario");
 		this.send.println(XMLConvert.xmlToString(envio));
 	}//
@@ -242,5 +214,14 @@ public class Cliente extends Thread {
 	public void setVerificado(boolean verificado) {
 		this.verificado = verificado;
 	}
+
+	public boolean isVerificadoBD() {
+		return verificadoBD;
+	}
+
+	public void setVerificadoBD(boolean verificadoBD) {
+		this.verificadoBD = verificadoBD;
+	}
 	
+
 }
