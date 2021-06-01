@@ -3,6 +3,8 @@
 Para la ejecución de este programa se requiere:
 ##### Jdom.jar
 ##### mysql-connector-java8.jar
+##### IDE Eclipse IDE for Enterprise Java and Web Developers
+##### JKD 8
 
 ##### pasos a seguir
 **** 
